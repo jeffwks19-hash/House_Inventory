@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home Inventory</title>
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--tx:#1f2328;--mut:#6b7280;--ac:#2f6f5e;--acx:#fff;--bd:#e2e0da;--dg:#b3261e;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#17191a;--card:#222527;--tx:#ececec;--mut:#9aa0a6;--ac:#5fb59e;--acx:#10231e;--bd:#33373a;--dg:#f2b8b5}}
+:root[data-theme="dark"]{--bg:#17191a;--card:#222527;--tx:#ececec;--mut:#9aa0a6;--ac:#5fb59e;--acx:#10231e;--bd:#33373a;--dg:#f2b8b5}
+*{box-sizing:border-box}
+html{font-size:var(--fs,16px);scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:1rem/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:14px}
+h1{font-size:1.4rem;margin:4px 0 12px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+input,select,button,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px;min-width:0}
+input,select{flex:1}
+button{cursor:pointer}
+button.p{background:var(--ac);color:var(--acx);border-color:var(--ac);font-weight:600}
+button.d{color:var(--dg)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin:8px 0}
+.tabs button{white-space:nowrap;border-radius:20px;padding:6px 14px}
+.tabs button.on{background:var(--ac);color:var(--acx);border-color:var(--ac)}
+.item{display:flex;gap:12px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:10px;margin:8px 0}
+.item img,.ph{width:84px;height:84px;object-fit:cover;border-radius:10px;flex:none;background:var(--bd)}
+.ph{display:flex;align-items:center;justify-content:center;font-size:28px}
+.inf{flex:1;min-width:0}
+.inf b{display:block;overflow-wrap:anywhere}
+.m{color:var(--mut);font-size:.88rem}
+.tag{display:inline-block;font-size:.75rem;border:1px solid var(--bd);border-radius:10px;padding:1px 8px;margin-right:4px}
+.mod{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:20}
+.mod.on{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:720px;max-height:92%;overflow-y:auto;border-radius:18px 18px 0 0;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+label{display:block;font-size:.82rem;color:var(--mut);margin:10px 0 4px}
+.sheet input,.sheet select,.sheet textarea{width:100%}
+.ck{display:flex;align-items:center;gap:8px;color:var(--tx);font-size:1rem}
+.ck input{flex:none;width:auto}
+#pv{width:100%;max-height:220px;object-fit:contain;border-radius:10px;margin-top:8px;display:none}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}
+.bd{display:inline-block;font-size:.75rem;border-radius:10px;padding:1px 8px;margin-top:4px;font-weight:600}
+.bd.r{background:#b3261e;color:#fff}.bd.y{background:#e8a317;color:#222}.bd.g{background:#2f6f5e;color:#fff}
+#al{margin:10px 0;padding:10px;border-radius:12px;background:var(--card);border:1px solid var(--bd);display:none;cursor:pointer}
+#list.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+#list.g .item{flex-direction:column;margin:0}
+#list.g .item img,#list.g .ph{width:100%;height:130px}
+#list.c .item{padding:6px 10px;align-items:center;margin:5px 0}
+#list.c .item img,#list.c .ph{width:44px;height:44px;font-size:18px}
+#list.c .inf>.m+.m{display:none}
+.gh{grid-column:1/-1;font-size:1rem;margin:14px 0 2px;color:var(--ac)}
+#sn{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));background:var(--tx);color:var(--bg);border-radius:12px;padding:10px 14px;display:none;justify-content:space-between;align-items:center;z-index:30}
+#sn button{background:none;border:0;color:var(--bg);font-weight:700;text-decoration:underline}
+.mi{padding:2px 12px;margin-top:6px;border-radius:14px}
+.bd{margin-right:4px}
+html{-webkit-text-size-adjust:100%}
+button{touch-action:manipulation;min-height:44px}
+.mi,.tabs button{min-height:36px}
+.tabs{scrollbar-width:none;-webkit-overflow-scrolling:touch}.tabs::-webkit-scrollbar{display:none}
+input[type=date],input[type=number],select{min-height:44px;width:100%;-webkit-appearance:none;appearance:none}
+.row>select,.row>input{width:auto}
+.wrap{padding:12px 12px 96px}
+.sheet{max-height:90dvh}
+#add{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:15;border-radius:28px;padding:12px 22px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#list.g{grid-template-columns:repeat(2,1fr)}
+@media (min-width:600px){#list.g{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
+#vw,#qt,#rb{display:none}
+#ht{display:grid;grid-template-columns:repeat(2,1fr);overflow:visible}
+#ht button{white-space:normal;border-radius:14px}
+details summary{cursor:pointer;color:var(--ac);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🏠 Home Inventory</h1>
+  <div class="row"><input id="q" type="search" placeholder="Search item, store, place…"><button class="p" id="add">+ Add</button></div>
+  <div class="tabs" id="ht"></div>
+  <div id="al"></div>
+  <div class="row"><select id="cf"></select><select id="sf"><option value="d">Newest bought</option><option value="n">Name A–Z</option><option value="l">Location</option><option value="e">Expiring first</option></select></div>
+  <div class="tabs" id="vw"><button data-v="">☰ List</button><button data-v="g">▦ Grid</button><button data-v="c">≡ Compact</button><button id="gb">▤ By room</button></div>
+  <div class="tabs" id="qt"><button id="fe">🍎 Food by expiry</button><button id="sh">🛒 Shopping list</button><button id="sl2">📋 Share list</button></div>
+  <div class="row"><select id="vs"><option value="">☰ List view</option><option value="g">▦ Grid view</option><option value="c">≡ Compact view</option></select><select id="ts"><option value="">🧰 Tools &amp; reports…</option><option value="cart">🛒 Shopping cart (plan &amp; buy)</option><option value="fe">🍎 Food by expiry</option><option value="gb">▤ Group by room (on/off)</option><option value="mg">🧩 Merge duplicates</option><option value="demo">🧪 Load sample data (test)</option><option value="undemo">🧹 Remove sample data</option><option value="sh">🛒 Shopping list (low items)</option><option value="sl2">📋 Share current list</option><option value="r:sum">🔔 Weekly summary</option><option value="r:val">💰 Value &amp; spending</option><option value="r:rooms">🏡 Items per room</option><option value="r:ins">🛡 Insurance list</option><option value="r:store">🛒 Shopping by store</option><option value="r:lent">↪ Lent out</option><option value="r:move">📦 Moving checklist</option><option value="r:don">🎁 Donate pile</option></select></div>
+  <div class="tabs" id="rb"><button data-r="sum">🔔 Summary</button><button data-r="val">💰 Value</button><button data-r="rooms">🏡 Rooms</button><button data-r="ins">🛡 Insurance</button><button data-r="store">🛒 By store</button><button data-r="lent">↪ Lent</button><button data-r="move">📦 Moving</button><button data-r="don">🎁 Donate</button></div>
+  <div id="list"></div>
+  <div class="row" style="margin-top:18px">
+    <button id="ren">Houses &amp; rooms</button><button id="exp">Backup</button><button id="imp">Restore</button>
+    <button id="th">◐ Theme</button><button id="bg">A+ Text size</button>
+    <input type="file" id="impf" accept=".json" hidden>
+  </div>
+  <div id="rp" style="display:none;margin-top:10px">
+    <label>House names</label>
+    <div class="row"><input id="r0"><input id="r1"><input id="r2"></div>
+    <label>Rooms for this house (separate with commas)</label>
+    <select id="rh"></select>
+    <input id="rl" style="margin-top:6px;width:100%">
+    <label>PIN lock (keeps casual viewers out; leave empty for none)</label><input id="pn" type="password" inputmode="numeric" style="width:100%">
+    <button class="p" id="rs" style="margin-top:8px">Save</button>
+  </div>
+  <p class="m" id="sync">Checking online save…</p><p class="m">Tap Backup now and then for a spare copy.</p>
+</div>
+
+<div class="mod" id="mod"><div class="sheet">
+  <b id="mt">Add item</b>
+  <label>Photo</label>
+  <input type="file" id="ph" accept="image/*">
+  <img id="pv" alt="">
+  <label>Item name</label><input id="nm" placeholder="e.g. Winter jacket, rice, batteries">
+  <div class="row"><div style="flex:1"><label>House</label><select id="hs"></select></div>
+  <div style="flex:1"><label>Category</label><select id="ct"></select></div></div>
+  <div class="row"><div style="flex:1"><label>Room</label><select id="rm"></select></div>
+  <div style="flex:1"><label>Exact spot</label><input id="lc" list="ll" placeholder="e.g. Top shelf"></div></div>
+  <label>Store bought from</label><input id="st" list="sl" placeholder="e.g. Costco">
+  <datalist id="sl"></datalist><datalist id="ll"></datalist>
+  <div class="row"><div style="flex:1"><label>Date bought</label><input id="dt" type="date"></div>
+  <div style="flex:1"><label>Quantity</label><div style="display:grid;grid-template-columns:48px 1fr 48px;gap:8px"><button type="button" id="qm" style="min-width:48px">−</button><input id="qt" type="tel" inputmode="numeric" placeholder="1" autocomplete="off" onfocus="this.select()" style="text-align:center;min-width:0"><button type="button" id="qp" style="min-width:48px">+</button></div></div></div>
+  <div id="exw" style="display:none"><label>Expiry date (food)</label><input id="ex" type="date"></div>
+  <label>Notes (optional)</label><input id="nt">
+  <details style="margin-top:12px"><summary>More details</summary>
+<div id="cw" style="display:none"><div class="row"><div style="flex:1"><label>Season</label><select id="se"><option value="">—</option><option>Summer</option><option>Winter</option><option>All-year</option></select></div><div style="flex:1"><label>Size</label><input id="sz"></div></div><div class="row"><div style="flex:1"><label>Brand</label><input id="br"></div><div style="flex:1"><label>Belongs to</label><input id="ow"></div></div></div>
+<div id="fw" style="display:none"><label>Opened on (food)</label><input id="op" type="date"><label class="ck"><input type="checkbox" id="fz"> ❄ In freezer (since date bought)</label></div>
+<div class="row"><div style="flex:1"><label>Price</label><input id="pr" type="number" min="0" step="0.01"></div><div style="flex:1"><label>Warranty ends</label><input id="wd" type="date"></div></div>
+<div class="row"><div style="flex:1"><label>Box / label</label><input id="bx" placeholder="Box 12"></div><div style="flex:1"><label>Low when qty ≤</label><input id="mn" type="number" min="0"></div></div>
+<div class="row"><div style="flex:1"><label>Lent to</label><input id="lt"></div><div style="flex:1"><label>Due back</label><input id="du" type="date"></div></div>
+<label>Receipt / extra photo</label><input type="file" id="p2" accept="image/*"><img id="pv2" alt="" style="width:100%;max-height:160px;object-fit:contain;display:none;margin-top:6px">
+<label class="ck"><input type="checkbox" id="pk"> 📦 Packed (moving)</label><label class="ck"><input type="checkbox" id="dn"> 🎁 Donate pile</label>
+</details>
+  <label class="ck" style="margin-top:12px"><input type="checkbox" id="lw"> ⚠ Running low (add to shopping list)</label>
+  <label class="ck" id="kw"><input type="checkbox" id="kp"> Keep adding (quick-add)</label>
+  <div class="row" style="margin-top:16px"><button class="p" id="sv" style="flex:2">Save</button><button id="cn" style="flex:1">Cancel</button><button id="cp">Copy</button><button class="d" id="dl">Delete</button></div>
+</div></div>
+
+<div class="mod" id="tx"><div class="sheet"><b id="tt"></b><textarea id="tb" rows="12" readonly style="margin-top:8px"></textarea>
+<div class="row" style="margin-top:10px"><button class="p" id="tc" style="flex:2">Copy</button><button id="tx0" style="flex:1">Close</button></div></div></div>
+<div class="mod" id="cm"><div class="sheet"><b>🛒 Shopping cart</b>
+<label>Add to cart</label><input id="cn2" placeholder="e.g. Milk, eggs, rice" autocomplete="off">
+<div style="display:grid;grid-template-columns:80px 1fr auto;gap:8px;margin-top:8px"><input id="cq" type="tel" inputmode="numeric" placeholder="Qty" style="text-align:center"><select id="cc"></select><button class="p" id="ca">Add</button></div>
+<label>Quick suggestions</label><div id="cs" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+<button id="cl" style="margin-top:8px">+ Add my low-stock items</button>
+<label>Your list (tick what you bought)</label><div id="cb"></div>
+<label>Add ticked items to</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select id="ch"></select><input id="cst" placeholder="Store (optional)"></div>
+<div style="display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:12px"><button class="p" id="cg">Add ticked to inventory</button><button id="cx">Close</button></div></div></div>
+<div class="mod" id="lb" style="align-items:center"><img id="lbi" alt="" style="max-width:96%;max-height:90%;border-radius:12px"></div>
+<div class="mod" id="lk" style="align-items:center;z-index:50;background:var(--bg)"><div class="sheet" style="border-radius:18px;max-width:320px;text-align:center"><b>🔒 Home Inventory</b><input id="lp" type="password" inputmode="numeric" placeholder="PIN" style="margin:12px 0;text-align:center"><button class="p" id="lo" style="width:100%">Unlock</button></div></div>
+<div id="sn"><span>Item deleted</span><button id="un">Undo</button></div>
+
+<script>
+const CATS=["Clothes","Food","Supplies","Other"],ICON={Clothes:"👕",Food:"🍎",Supplies:"🧴",Other:"📦"};
+const DR=["Kitchen","Living room","Bedroom","Bathroom","Garage","Storage","Closet","Other"];
+const LS=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const LW=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const SV=(k,v)=>{LW(k,v);if(CL&&["houses2","rooms2","cart2","pin"].includes(k))cfgSave()};
+let houses=LS("houses2",["SW","Savvy","SP"]);if(!Array.isArray(houses)||houses.length!=3)houses=["SW","Savvy","SP"];
+let rooms=LS("rooms2",[DR,DR,DR]),view=LS("view2",""),grp=LS("grp2",false);
+let items=[],cur=null,hf="all",photo="",photo2="",cdb=null,uid=null,CL=false,cfgT=0,db=null,mem=false,vis=[],last=null,snT=0;
+const $=id=>document.getElementById(id);
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const dk=id=>("i_"+id).replace(/[^A-Za-z0-9_.~:@+-]/g,"_");
+const cc=()=>cdb.collection("data/users/"+uid);
+function sync(m){const e=$("sync");if(e)e.textContent=m}
+function cput(o){if(!CL)return;try{cc().doc(dk(o.id)).set(JSON.parse(JSON.stringify(o))).then(()=>sync("☁ Saved online to your account")).catch(()=>sync("⚠ Could not save online. Check your connection, or the photo may be too large."))}catch(e){}}
+function cdel(id){if(!CL)return;try{cc().doc(dk(id)).delete().catch(()=>{})}catch(e){}}
+function cfgSave(){clearTimeout(cfgT);cfgT=setTimeout(()=>{try{cc().doc("cfg").set({houses:LS("houses2",null),rooms:LS("rooms2",null),cart:LS("cart2",null),pin:LS("pin","")}).catch(()=>{})}catch(e){}},600)}
+async function cloudInit(){
+ try{const u=await claude.use("user"),d=await claude.use("db");
+  if(!u||!d){sync("Saved on this device only");return}
+  uid=await u.id();if(!uid){sync("Saved on this device only");return}
+  cdb=d;CL=true;
+  const s=await cc().get(),C=s.docs.filter(x=>x.id.startsWith("i_")).map(x=>({...x.data()})),cf=s.docs.find(x=>x.id=="cfg");
+  if(cf){const c=cf.data();
+   if(c.houses&&c.houses.length==3){houses=c.houses;LW("houses2",houses)}
+   if(c.rooms&&c.rooms.length==3){rooms=c.rooms;LW("rooms2",rooms)}
+   if(Array.isArray(c.cart)){cart=c.cart;LW("cart2",cart)}
+   if(c.pin)LW("pin",c.pin)
+  }else cfgSave();
+  const ids=new Set(C.map(i=>i.id));
+  if(!LS("synced",false))items.filter(i=>!ids.has(i.id)).forEach(i=>{C.push(i);cput(i)});
+  else items.filter(i=>!ids.has(i.id)).forEach(i=>delLocal(i.id));
+  items=C;C.forEach(putLocal);LW("synced",true);
+  sync("☁ Saved online to your account")
+ }catch(e){CL=false;sync("Saved on this device only")}}
+function openDB(){return new Promise(r=>{try{const q=indexedDB.open("homeinv",1);
+q.onupgradeneeded=()=>q.result.createObjectStore("items",{keyPath:"id"});
+q.onsuccess=()=>{db=q.result;r()};q.onerror=()=>{mem=true;r()}}catch(e){mem=true;r()}})}
+function loadAll(){return new Promise(r=>{if(mem)return r();
+const q=db.transaction("items").objectStore("items").getAll();q.onsuccess=()=>{items=q.result;r()};q.onerror=()=>r()})}
+function put(o){cput(o);putLocal(o)}
+function putLocal(o){if(!mem)try{db.transaction("items","readwrite").objectStore("items").put(o)}catch(e){}}
+function del(id){cdel(id);delLocal(id)}
+function delLocal(id){if(!mem)try{db.transaction("items","readwrite").objectStore("items").delete(id)}catch(e){}}
+function upsert(o){const x=items.findIndex(i=>i.id==o.id);x>=0?items[x]=o:items.push(o);put(o)}
+
+function ui(){const r=document.documentElement,t=LS("theme","auto");
+ r.style.setProperty("--fs",LS("big",false)?"19px":"16px");
+ t=="auto"?r.removeAttribute("data-theme"):r.setAttribute("data-theme",t)}
+function fill(){
+ $("hs").innerHTML=houses.map((h,i)=>`<option value="${i}">${esc(h)}</option>`).join("");
+ $("rh").innerHTML=$("hs").innerHTML;
+ $("ct").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+ const v=$("cf").value||"all";
+ $("cf").innerHTML='<option value="all">All categories</option>'+CATS.map(c=>`<option>${c}</option>`).join("");$("cf").value=v;
+}
+function fillRooms(v){const L=rooms[+$("hs").value]||DR,a=v&&!L.includes(v)?[...L,v]:L;
+ $("rm").innerHTML='<option value="">— Room —</option>'+a.map(r=>`<option>${esc(r)}</option>`).join("");$("rm").value=v||""}
+function tog(){const c=$("ct").value;$("exw").style.display=c=="Food"?"block":"none";$("fw").style.display=c=="Food"?"block":"none";$("cw").style.display=c=="Clothes"?"block":"none"}
+function dl2(i){if(i.cat!="Food"||!i.exp)return null;const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(i.exp+"T00:00:00")-t)/864e5)}
+function bdg(i){const d=dl2(i);if(d===null)return"";return d<0?`<span class="bd r">Expired ${-d}d ago</span>`:d==0?`<span class="bd r">Expires today</span>`:d<=7?`<span class="bd y">${d} day${d>1?"s":""} left</span>`:`<span class="bd g">Fresh · ${d} days left</span>`}
+const card=i=>`<div class="item" data-id="${i.id}">${i.photo?`<img data-z="1" src="${i.photo}" alt="">`:`<div class="ph">${ICON[i.cat]||"📦"}</div>`}<div class="inf"><b>${esc(i.name)}${i.qty!=1?" ×"+i.qty:""}</b><span class="tag">${esc(houses[i.house])}</span><span class="tag">${esc(i.cat)}</span>${isLow(i)?'<span class="bd y">⚠ Low</span>':""}<div class="m">📍 ${esc([i.room,i.loc].filter(Boolean).join(" · "))||"—"}</div><div class="m">🛒 ${esc(i.store)||"—"} · ${i.date||"no date"}</div>${bdg(i)}${xb(i)}<div>${i.qty>0?`<button class="mi" data-m="${i.id}">−1</button> `:""}<button class="mi" data-x="${i.id}">✓ Used up</button></div></div></div>`;
+const td=()=>{const t=new Date();t.setHours(0,0,0,0);return t};
+const dd=s=>Math.round((new Date(s+"T00:00:00")-td())/864e5);
+const isLow=i=>i.low||(i.min!=null&&i.min!==""&&+i.qty<=+i.min);
+function xb(i){let h="";
+ if(i.wd){const d=dd(i.wd);if(d<0)h+='<span class="bd r">Warranty ended</span>';else if(d<=60)h+=`<span class="bd y">Warranty ${d}d left</span>`}
+ if(i.lt){const d=i.du?dd(i.du):null;h+=`<span class="bd ${d!==null&&d<0?"r":"y"}">↪ ${esc(i.lt)}${i.du?" · due "+i.du:""}</span>`}
+ if(i.fz&&i.date)h+=`<span class="bd g">❄ ${-dd(i.date)}d frozen</span>`;
+ if(i.op)h+=`<span class="bd y">Opened ${-dd(i.op)}d ago</span>`;
+ if(i.pk)h+='<span class="bd g">📦 Packed</span>';if(i.dn)h+='<span class="bd y">🎁 Donate</span>';
+ const m=[i.season,i.size,i.brand,i.owner&&"for "+i.owner,i.box,i.price&&"💲"+i.price].filter(Boolean);
+ return(m.length?`<div class="m">${esc(m.join(" · "))}</div>`:"")+h}
+const G=(L,k,f)=>{const g={};L.forEach(i=>(g[k(i)]=g[k(i)]||[]).push(f(i)));return Object.keys(g).sort().map(a=>a+"\n"+g[a].join("\n")).join("\n\n")||"Nothing here."};
+const ln=i=>`• ${i.name}${i.qty!=1?" ×"+i.qty:""} — ${houses[i.house]}${i.room?" / "+i.room:""}`;
+const mo=n=>n.toFixed(2),pv=i=>(+i.price||0)*(i.qty!=null?+i.qty:1);
+function rep(k){let t="",b="";
+ if(k=="sum"){t="Weekly summary";const e=[],s=[];items.forEach(i=>{const d=dl2(i);if(d!==null){d<0?e.push(i):d<=7&&s.push(i)}});
+  b=[["🔴 Expired",e],["🟡 Expiring within 7 days",s],["⚠ Running low",items.filter(isLow)],["↪ Overdue loans",items.filter(i=>i.lt&&i.du&&dd(i.du)<0)],["🛡 Warranty ends within 60 days",items.filter(i=>i.wd&&dd(i.wd)>=0&&dd(i.wd)<=60)]].map(([h,L])=>h+" ("+L.length+")\n"+(L.map(ln).join("\n")||"• none")).join("\n\n")}
+ else if(k=="val"){t="Value & spending";const P=items.filter(i=>i.price),S=f=>{const g={};P.forEach(i=>{const a=f(i);g[a]=(g[a]||0)+pv(i)});return Object.keys(g).sort().map(a=>a+": "+mo(g[a])).join("\n")||"none yet"};
+  b="By house\n"+S(i=>houses[i.house])+"\n\nBy store\n"+S(i=>i.store||"No store")+"\n\nBy month\n"+S(i=>(i.date||"No date").slice(0,7))}
+ else if(k=="rooms"){t="Items per room";const g={};items.forEach(i=>{const a=houses[i.house]+" / "+(i.room||"No room");g[a]=(g[a]||0)+1});b=Object.keys(g).sort().map(a=>a+": "+g[a]).join("\n")||"Nothing here."}
+ else if(k=="ins"){t="Insurance list";const L=items.filter(i=>i.price);b=G(L,i=>houses[i.house],i=>`• ${i.name}${i.qty!=1?" ×"+i.qty:""} — ${mo(+i.price)} each${i.date?" · bought "+i.date:""}${i.store?" · "+i.store:""}`)+"\n\nTotal: "+mo(L.reduce((s,i)=>s+pv(i),0))}
+ else if(k=="store"){t="Shopping list by store";b=G(items.filter(isLow),i=>i.store||"No store set",ln)}
+ else if(k=="lent"){t="Lent out";b=G(items.filter(i=>i.lt),i=>i.lt,i=>ln(i)+(i.du?" · due "+i.du:""))}
+ else if(k=="move"){t="Moving checklist";b=G(items,i=>houses[i.house]+" — "+(i.pk?"Packed ✓":"Not packed"),ln)}
+ else{t="Donate pile";b=G(items.filter(i=>i.dn),i=>houses[i.house],ln)}
+ showTx(t,b)}
+const gk=i=>(hf=="all"?houses[i.house]+" · ":"")+(i.room||"No room");
+
+function render(){
+ $("list").className=view;
+ document.querySelectorAll("#vw button[data-v]").forEach(b=>b.classList.toggle("on",b.dataset.v==view));
+ $("gb").classList.toggle("on",grp);$("vs").value=view;
+ const inH=i=>hf=="all"||String(i.house)==hf;
+ const f=items.filter(inH).map(dl2).filter(d=>d!==null),x=f.filter(d=>d<0).length,y=f.filter(d=>d>=0&&d<=7).length;
+ $("al").style.display=x+y?"block":"none";
+ $("al").innerHTML=`${x?`🔴 <b>${x}</b> expired`:""}${x&&y?" · ":""}${y?`🟡 <b>${y}</b> expiring within 7 days`:""} — tap to see them first`;
+ $("ht").innerHTML=[["all","All houses",items.length],...houses.map((h,i)=>[String(i),h,items.filter(t=>t.house==i).length])].map(([k,l,n])=>`<button class="${hf==k?"on":""}" data-k="${k}">${esc(l)} (${n})</button>`).join("");
+ const q=$("q").value.toLowerCase(),c=$("cf").value,s=$("sf").value;
+ let L=items.filter(i=>inH(i)&&(c=="all"||i.cat==c)&&(!q||[i.name,i.store,i.loc,i.room,i.note,i.box,i.owner,i.brand,i.lt].join(" ").toLowerCase().includes(q)));
+ L.sort((a,b)=>s=="e"?(a.exp||"9999").localeCompare(b.exp||"9999"):s=="n"?a.name.localeCompare(b.name):s=="l"?((a.room||"")+(a.loc||"")).localeCompare((b.room||"")+(b.loc||"")):(b.date||"").localeCompare(a.date||""));
+ if(grp)L.sort((a,b)=>gk(a).localeCompare(gk(b)));
+ vis=L;let h="",p=null;
+ L.forEach(i=>{if(grp&&gk(i)!=p){p=gk(i);h+=`<h3 class="gh">${esc(p)}</h3>`}h+=card(i)});
+ $("list").innerHTML=h||'<div class="empty">No items yet. Tap + Add to start.</div>';
+}
+function openM(it,t){
+ cur=it;const s=it||t||{};photo=s.photo||"";
+ $("mt").textContent=it?"Edit item":"Add item";
+ $("nm").value=s.name||"";$("hs").value=s.house!=null?s.house:(hf=="all"?"0":hf);$("ct").value=s.cat||"Supplies";
+ fillRooms(s.room);$("lc").value=s.loc||"";$("st").value=s.store||"";$("dt").value=s.date||new Date().toISOString().slice(0,10);
+ $("qt").value=s.qty!=null?s.qty:"";$("nt").value=s.note||"";$("ph").value="";$("ex").value=s.exp||"";$("lw").checked=!!s.low;$("se").value=s.season||"";$("sz").value=s.size||"";$("br").value=s.brand||"";$("ow").value=s.owner||"";$("op").value=s.op||"";$("fz").checked=!!s.fz;$("pr").value=s.price||"";$("wd").value=s.wd||"";$("bx").value=s.box||"";$("mn").value=s.min==null?"":s.min;$("lt").value=s.lt||"";$("du").value=s.du||"";$("pk").checked=!!s.pk;$("dn").checked=!!s.dn;photo2=s.photo2||"";$("p2").value="";$("pv2").src=photo2;$("pv2").style.display=photo2?"block":"none";
+ $("pv").style.display=photo?"block":"none";$("pv").src=photo;
+ $("sl").innerHTML=[...new Set(items.map(i=>i.store).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join("");
+ $("ll").innerHTML=[...new Set(items.map(i=>i.loc).filter(Boolean))].map(v=>`<option value="${esc(v)}">`).join("");
+ tog();$("kw").style.display=it?"none":"flex";$("cp").style.display=it?"":"none";
+ $("dl").style.display=it?"":"none";$("mod").classList.add("on");
+}
+function shrink(f){return new Promise(r=>{const im=new Image(),u=URL.createObjectURL(f);
+ im.onload=()=>{const m=700,k=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");
+ c.width=im.width*k;c.height=im.height*k;c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL("image/jpeg",.7))};
+ im.onerror=()=>r("");im.src=u})}
+function txt(L){const g={};L.forEach(i=>{const k=houses[i.house]+" — "+(i.room||"No room");(g[k]=g[k]||[]).push(`• ${i.name}${i.qty>1?" ×"+i.qty:""}${i.loc?" ("+i.loc+")":""}${i.store?" · "+i.store:""}`)});
+ return Object.keys(g).sort().map(k=>k+"\n"+g[k].join("\n")).join("\n\n")||"Nothing here."}
+function showTx(t,b){$("tt").textContent=t;$("tb").value=b;$("tx").classList.add("on")}
+function demo(){const t=td(),f=n=>{const d=new Date(t);d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const B=(n,o)=>({id:"demo-"+n,name:"",house:0,cat:"Supplies",room:"",loc:"",store:"",date:f(-5),qty:1,note:"",exp:"",low:false,photo:"",...o});
+[B(1,{name:"Milk",cat:"Food",room:"Kitchen",loc:"Fridge door",store:"Supermarket",qty:2,exp:f(3)}),
+B(2,{name:"Yogurt",cat:"Food",house:1,room:"Kitchen",loc:"Fridge",store:"Supermarket",exp:f(-2)}),
+B(3,{name:"Frozen chicken",cat:"Food",house:1,room:"Kitchen",loc:"Freezer",store:"Market",qty:3,exp:f(60),fz:true,date:f(-20)}),
+B(4,{name:"Rice 5kg",cat:"Food",house:2,room:"Storage",store:"Market",exp:f(200),price:"22"}),
+B(5,{name:"Batteries AA",room:"Storage",loc:"Drawer 2",store:"Variety store",qty:2,min:3}),
+B(6,{name:"Winter jacket",cat:"Clothes",house:2,room:"Bedroom",loc:"Closet",store:"Clothing store",season:"Winter",size:"M",owner:"Me",price:"199"}),
+B(7,{name:"Drill",room:"Garage",loc:"Shelf 1",store:"Hardware shop",price:"150",wd:f(30),lt:"Ali",du:f(-3)}),
+B(8,{name:"Blender",house:1,room:"Kitchen",price:"120",pk:true,box:"Box 4"})].forEach(upsert);
+render();snack("Sample data added")}
+function clearDemo(){const n=items.filter(i=>String(i.id).startsWith("demo-"));items=items.filter(i=>!String(i.id).startsWith("demo-"));n.forEach(i=>del(i.id));render();snack("Removed "+n.length+" sample items")}
+let cart=LS("cart2",[]);
+const SG=[["Milk","Food"],["Eggs","Food"],["Bread","Food"],["Rice","Food"],["Chicken","Food"],["Fish","Food"],["Vegetables","Food"],["Fruits","Food"],["Noodles","Food"],["Cooking oil","Food"],["Sugar","Food"],["Tissue","Supplies"],["Dish soap","Supplies"],["Laundry detergent","Supplies"]];
+const ymd=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+function cartUI(){
+ $("cc").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+ $("cs").innerHTML=SG.map(([n,c])=>`<button data-s="${esc(n)}" data-t="${c}" style="min-height:36px;border-radius:18px">+ ${esc(n)}</button>`).join("");
+ $("cb").innerHTML=cart.length?cart.map(c=>`<div style="display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;margin:8px 0;padding:8px;background:var(--card);border:1px solid var(--bd);border-radius:12px"><input type="checkbox" data-c="${c.id}" ${c.done?"checked":""} style="width:24px;height:24px"><span>${esc(c.name)} ×${c.qty}</span><button data-r="${c.id}" class="d" style="min-height:36px">✕</button>${c.cat=="Food"?`<div class="m" style="grid-column:2/4">Expiry (optional): <input type="date" data-d="${c.id}" value="${c.exp||""}" style="width:auto;min-height:36px"></div>`:""}</div>`).join(""):'<div class="m">Your list is empty. Add items above.</div>'}
+function cadd(n,c,q){n=n.trim();if(!n)return;const x=cart.find(i=>i.name.toLowerCase()==n.toLowerCase()&&i.cat==c);if(x)x.qty+=q;else cart.push({id:Date.now()+"-"+Math.random(),name:n,cat:c,qty:q,exp:"",done:false});SV("cart2",cart);cartUI()}
+$("ca").onclick=()=>{cadd($("cn2").value,$("cc").value,Math.max(1,+$("cq").value||1));$("cn2").value="";$("cq").value=""};
+$("cl").onclick=()=>{const L=items.filter(isLow);L.forEach(i=>cadd(i.name,i.cat,1));snack(L.length?"Added "+L.length+" low-stock items":"No low-stock items")};
+$("cx").onclick=()=>$("cm").classList.remove("on");
+$("cm").onclick=e=>{const d=e.target.dataset;if(d.s)cadd(d.s,d.t,1);else if(d.r){cart=cart.filter(c=>c.id!=d.r);SV("cart2",cart);cartUI()}else if(d.c!=null){const c=cart.find(x=>x.id==d.c);if(c){c.done=e.target.checked;SV("cart2",cart)}}};
+$("cm").onchange=e=>{const d=e.target.dataset;if(d.d){const c=cart.find(x=>x.id==d.d);if(c){c.exp=e.target.value;SV("cart2",cart)}}};
+$("cg").onclick=()=>{const L=cart.filter(c=>c.done);if(!L.length){snack("Tick the items you bought first");return}
+ const h=+$("ch").value,st=$("cst").value.trim(),today=ymd(new Date());
+ L.forEach(c=>{const o={id:Date.now()+"-"+Math.random(),name:c.name,house:h,cat:c.cat,room:"",loc:"",store:st,date:today,qty:c.qty,note:"",exp:c.cat=="Food"?c.exp:"",low:false,photo:""};if(!stack(o))upsert(o)});
+ cart=cart.filter(c=>!c.done);SV("cart2",cart);cartUI();render();snack("Added "+L.length+" item"+(L.length>1?"s":"")+" to inventory")};
+const sk=i=>[i.house,i.name.trim().toLowerCase(),i.cat,i.cat=="Food"?(i.exp||""):""].join("|");
+function stack(o){const x=items.find(i=>i.id!=o.id&&sk(i)==sk(o));if(!x)return null;x.qty=(+x.qty||0)+(+o.qty||0);if(!x.photo&&o.photo)x.photo=o.photo;put(x);return x}
+function merge(){let n=0;const seen={};items=items.filter(i=>{const k=sk(i),x=seen[k];if(x){x.qty=(+x.qty||0)+(+i.qty||0);if(!x.photo&&i.photo)x.photo=i.photo;del(i.id);n++;return false}seen[k]=i;return true});Object.values(seen).forEach(o=>put(o));render();snack(n?"Merged "+n+" duplicate"+(n>1?"s":""):"No duplicates found")}
+function snack(m){$("sn").querySelector("span").textContent=m||"Item removed";$("un").style.display=m?"none":"";$("sn").style.display="flex";clearTimeout(snT);snT=setTimeout(()=>$("sn").style.display="none",7000)}
+
+$("ph").onchange=async e=>{const f=e.target.files[0];if(!f)return;photo=await shrink(f);$("pv").src=photo;$("pv").style.display=photo?"block":"none"};
+$("add").onclick=()=>openM(null);
+$("cn").onclick=()=>$("mod").classList.remove("on");
+$("hs").onchange=()=>fillRooms($("rm").value);
+$("ct").onchange=tog;
+$("sv").onclick=()=>{
+ const n=$("nm").value.trim();if(!n){$("nm").focus();return}
+ const o={id:cur?cur.id:Date.now()+"",name:n,house:+$("hs").value,cat:$("ct").value,room:$("rm").value,loc:$("lc").value.trim(),store:$("st").value.trim(),date:$("dt").value,qty:$("qt").value===""?1:Math.max(0,+$("qt").value),note:$("nt").value.trim(),exp:$("ct").value=="Food"?$("ex").value:"",low:$("lw").checked,photo,photo2,season:$("se").value,size:$("sz").value.trim(),brand:$("br").value.trim(),owner:$("ow").value.trim(),op:$("op").value,fz:$("fz").checked,price:$("pr").value,wd:$("wd").value,box:$("bx").value.trim(),min:$("mn").value===""?null:+$("mn").value,lt:$("lt").value.trim(),du:$("du").value,pk:$("pk").checked,dn:$("dn").checked};
+ const again=!cur&&$("kp").checked,m=!cur&&stack(o);if(!m)upsert(o);render();if(m)snack("Added to existing: "+m.name+" (now ×"+m.qty+")");
+ if(again){openM(null,{house:o.house,cat:o.cat,room:o.room,store:o.store,date:o.date,loc:o.loc});$("kp").checked=true;$("nm").focus()}else $("mod").classList.remove("on");
+};
+$("cp").onclick=()=>{if(!cur)return;const c={...cur,name:cur.name+" (copy)"};openM(null,c)};
+$("dl").onclick=()=>{if(cur){last=cur;items=items.filter(i=>i.id!=cur.id);del(cur.id);$("mod").classList.remove("on");render();snack()}};
+$("un").onclick=()=>{if(last){upsert(last);last=null;render()}$("sn").style.display="none"};
+$("list").onclick=e=>{if(e.target.dataset.x){const t=items.find(i=>i.id==e.target.dataset.x);if(t){last=t;items=items.filter(i=>i.id!=t.id);del(t.id);render();snack()}return}if(e.target.dataset.m){const t=items.find(i=>i.id==e.target.dataset.m);if(t&&t.qty>0){t.qty--;put(t);render()}return}if(e.target.dataset.z){$("lbi").src=e.target.src;$("lb").classList.add("on");return}const d=e.target.closest(".item");if(d)openM(items.find(i=>i.id==d.dataset.id))};
+$("lb").onclick=()=>$("lb").classList.remove("on");
+$("ht").onclick=e=>{const k=e.target.dataset.k;if(k!=null){hf=k;render()}};
+$("vw").onclick=e=>{const v=e.target.dataset.v;if(v!=null){view=v;SV("view2",v);render()}};
+$("gb").onclick=()=>{grp=!grp;SV("grp2",grp);render()};
+$("al").onclick=()=>{$("sf").value="e";render()};
+$("fe").onclick=()=>{$("cf").value="Food";$("sf").value="e";render()};
+$("sh").onclick=()=>showTx("Shopping list (running low)",txt(items.filter(isLow)));
+$("sl2").onclick=()=>showTx("Current list",txt(vis));
+$("tx0").onclick=()=>$("tx").classList.remove("on");
+$("tc").onclick=()=>{const b=$("tb");b.select();try{navigator.clipboard.writeText(b.value)}catch(e){try{document.execCommand("copy")}catch(x){}}$("tc").textContent="Copied ✓";setTimeout(()=>$("tc").textContent="Copy",1500)};
+["q","cf","sf"].forEach(i=>$(i).oninput=render);
+$("p2").onchange=async e=>{const f=e.target.files[0];if(!f)return;photo2=await shrink(f);$("pv2").src=photo2;$("pv2").style.display=photo2?"block":"none"};
+$("rb").onclick=e=>{const k=e.target.dataset.r;if(k)rep(k)};
+$("qm").onclick=()=>{$("qt").value=Math.max(0,(+$("qt").value||1)-1)};$("qp").onclick=()=>{$("qt").value=(+$("qt").value||1)+1};$("qt").oninput=()=>{$("qt").value=$("qt").value.replace(/\D/g,"")};
+$("vs").onchange=()=>{view=$("vs").value;SV("view2",view);render()};
+$("ts").onchange=()=>{const v=$("ts").value;$("ts").value="";if(v.startsWith("r:"))rep(v.slice(2));else if(v=="cart"){cartUI();$("ch").innerHTML=$("hs").innerHTML;$("cm").classList.add("on")}else if(v=="mg")merge();else if(v=="demo")demo();else if(v=="undemo")clearDemo();else if(v)$(v).click()};
+function loadRl(){$("rl").value=(rooms[+$("rh").value]||DR).join(", ")}
+$("rh").onchange=loadRl;
+$("ren").onclick=()=>{const p=$("rp");[0,1,2].forEach(i=>$("r"+i).value=houses[i]);loadRl();$("pn").value=LS("pin","");p.style.display=p.style.display=="none"?"block":"none"};
+$("rs").onclick=()=>{houses=[0,1,2].map(i=>$("r"+i).value.trim()||houses[i]);SV("houses2",houses);
+ const r=$("rl").value.split(",").map(s=>s.trim()).filter(Boolean);if(r.length){rooms=rooms.map(a=>a.slice());rooms[+$("rh").value]=r;SV("rooms2",rooms)}
+ SV("pin",$("pn").value.trim());$("rp").style.display="none";fill();render()};
+$("th").onclick=()=>{const o=["auto","light","dark"],t=LS("theme","auto");SV("theme",o[(o.indexOf(t)+1)%3]);ui()};
+$("bg").onclick=()=>{SV("big",!LS("big",false));ui()};
+$("exp").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({houses,rooms,items})],{type:"application/json"}));a.download="home-inventory-backup.json";a.click()};
+$("imp").onclick=()=>$("impf").click();
+$("impf").onchange=async e=>{try{const d=JSON.parse(await e.target.files[0].text());
+ if(d.houses&&d.houses.length==3){houses=d.houses;SV("houses2",houses)}
+ if(d.rooms&&d.rooms.length==3){rooms=d.rooms;SV("rooms2",rooms)}
+ (d.items||[]).forEach(upsert);fill();render()}catch(x){alert("Could not read that backup file.")}};
+
+const lock=()=>{if(LS("pin",""))$("lk").classList.add("on")};$("lo").onclick=()=>{const p=LS("pin","");if(!p||$("lp").value==p){$("lk").classList.remove("on");$("lp").value=""}else{$("lp").value="";$("lp").placeholder="Wrong PIN"}};$("lp").onkeydown=e=>{if(e.key=="Enter")$("lo").click()};document.addEventListener("visibilitychange",()=>{if(document.hidden)lock()});
+(async()=>{ui();lock();await openDB();await loadAll();fill();render();await cloudInit();fill();render();lock()})();
+</script>
+</body>
+</html>
